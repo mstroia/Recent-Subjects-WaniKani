@@ -15,11 +15,17 @@ while reviews.json()['pages']['next_url']:
 for x in reviews.json()['data']:
     rev_list.append(x)
 rev_list = list(
-    filter(lambda x: ((datetime.now() - datetime.strptime(x['data']['created_at'], '%Y-%m-%dT%H:%M:%S.%fZ')).days < 7),
-           rev_list))
+    filter(lambda x: (
+            (datetime.now() - datetime.strptime(x['data']['created_at'], '%Y-%m-%dT%H:%M:%S.%fZ')).days < 7
+            and x['data']['subject_type'] != 'radical'
+        ),
+        rev_list
+    )
+)
 
 subjects = list()
 for x in rev_list:
-    subjects.append(x['data']['subject_id'])
+    subject = requests.get(url='https://api.wanikani.com/v2/subjects/' + str(x['data']['subject_id']), headers=headers).json()
+    subjects.append(subject['data']['characters'])
 
 print(subjects)
